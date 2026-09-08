@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Test</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Supabase Connection Test</h2>
+        <div id="status" class="error-message">Checking connection...</div>
+        <pre id="details" style="background:#f4f6f9; padding:15px; border-radius:6px; margin-top:15px; font-size:0.9rem; overflow:auto;"></pre>
+        <p style="margin-top:15px; text-align:center;"><a href="login.html">Back to Login</a></p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4"></script>
+    <script src="js/supabase.js"></script>
+    <script>
+        async function test() {
+            const statusEl = document.getElementById('status');
+            const detailsEl = document.getElementById('details');
+            const lines = [];
+
+            lines.push('SUPABASE_URL: ' + SUPABASE_URL);
+            lines.push('SUPABASE_KEY: ' + SUPABASE_KEY.slice(0, 12) + '...');
+            lines.push('');
+
+            try {
+                lines.push('Step 1: Testing basic network to Supabase...');
+                const ctrl = new AbortController();
+                const timeout = setTimeout(() => ctrl.abort(), 10000);
+                const resp = await fetch(SUPABASE_URL + '/auth/v1/health', {
+                    method: 'GET',
+                    signal: ctrl.signal
+                });
+                clearTimeout(timeout);
+                lines.push('Network response status: ' + resp.status);
+                lines.push('Network response ok: ' + resp.ok);
+                lines.push('');
+
+                lines.push('Step 2: Testing Supabase auth signUp...');
+                const email = 'test_' + Date.now() + '@example.com';
+                const password = 'Test123456';
+
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password
+                });
+
+                lines.push('signUp data: ' + JSON.stringify(data, null, 2));
+                lines.push('signUp error: ' + JSON.stringify(error, null, 2));
+                lines.push('');
+
+                if (error) {
+                    statusEl.textContent = 'SignUp test failed';
+                    statusEl.classList.add('active');
+                } else if (data && data.user) {
+                    statusEl.textContent = 'SignUp test succeeded';
+                    statusEl.style.backgroundColor = '#d4edda';
+                    statusEl.style.color = '#155724';
+                    statusEl.classList.add('active');
+                } else {
+                    statusEl.textContent = 'SignUp returned unexpected result';
+                    statusEl.classList.add('active');
+                }
+            } catch (err) {
+                lines.push('Exception: ' + err.message);
+                lines.push('Stack: ' + (err.stack || 'N/A'));
+                statusEl.textContent = 'Connection failed';
+                statusEl.classList.add('active');
+            }
+
+            detailsEl.textContent = lines.join('\n');
+        }
+
+        test();
+    </script>
+</body>
+</html>
