@@ -1,7 +1,7 @@
 # SAD-ServiceRequest-DelosReyes
 
-**Student:** [Your Name]  
-**Section:** [Your Section]  
+**Student:** [Princess Icy D. Delos Reyes]  
+**Section:** [BSIT 3A]  
 **Course:** Systems Analysis and Design (SAD)  
 
 ## Live System
